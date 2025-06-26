@@ -124,10 +124,10 @@ chmod +x scripts/*.sh
 
 ```bash
 # Start all services with Docker Compose
-docker-compose up --build
+docker compose up --build
 
 # Or run in background
-docker-compose up --build -d
+docker compose up --build -d
 ```
 
 ### 4. Verify Installation
@@ -277,23 +277,23 @@ curl -X POST http://localhost:8080/api/purchase \
 
 ```bash
 # Build and start all services
-docker-compose up --build
+docker compose up --build
 
 # Start in background
-docker-compose up -d
+docker compose up -d
 
 # View logs
-docker-compose logs -f
+docker compose logs -f
 
 # Stop all services
-docker-compose down
+docker compose down
 
 # Stop and remove volumes
-docker-compose down -v
+docker compose down -v
 
 # Rebuild specific service
-docker-compose build user-service
-docker-compose up user-service
+docker compose build user-service
+docker compose up user-service
 ```
 
 ## 🔧 Development
@@ -472,18 +472,18 @@ curl http://localhost:8083/actuator/health
 docker ps -a
 
 # View service logs
-docker-compose logs user-service
+docker compose logs user-service
 ```
 
 #### Database Connection Issues
 
 ```bash
 # Restart databases
-docker-compose restart postgres-user postgres-payment mongodb
+docker compose restart postgres-user postgres-payment mongodb
 
 # Check database logs
-docker-compose logs postgres-user
-docker-compose logs mongodb
+docker compose logs postgres-user
+docker compose logs mongodb
 ```
 
 #### Port Conflicts
@@ -510,13 +510,13 @@ telnet localhost 9093
 
 ```bash
 # Stop all containers and remove volumes
-docker-compose down -v
+docker compose down -v
 
 # Remove Docker images
 docker rmi $(docker images -q microservices-e-commerce*)
 
 # Start fresh
-docker-compose up --build
+docker compose up --build
 ```
 
 ## 🤝 Contributing
