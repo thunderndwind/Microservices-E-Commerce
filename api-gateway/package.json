@@ -1,0 +1,40 @@
+{
+    "name": "api-gateway",
+    "version": "1.0.0",
+    "description": "API Gateway for E-Commerce Microservices",
+    "main": "src/app.js",
+    "scripts": {
+        "start": "node src/app.js",
+        "dev": "nodemon src/app.js",
+        "test": "jest"
+    },
+    "keywords": [
+        "api-gateway",
+        "microservices",
+        "express",
+        "grpc",
+        "proxy"
+    ],
+    "author": "E-Commerce Team",
+    "license": "MIT",
+    "dependencies": {
+        "@grpc/grpc-js": "^1.9.14",
+        "@grpc/proto-loader": "^0.7.10",
+        "cors": "^2.8.5",
+        "dotenv": "^16.3.1",
+        "express": "^4.18.2",
+        "helmet": "^7.1.0",
+        "http-proxy-middleware": "^2.0.6",
+        "jsonwebtoken": "^9.0.2",
+        "morgan": "^1.10.0"
+    },
+    "devDependencies": {
+        "jest": "^29.7.0",
+        "nodemon": "^3.0.2",
+        "supertest": "^6.3.3"
+    },
+    "engines": {
+        "node": ">=18.0.0",
+        "npm": ">=8.0.0"
+    }
+}

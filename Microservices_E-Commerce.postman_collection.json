@@ -1,0 +1,481 @@
+{
+    "info": {
+        "_postman_id": "e8c9c7b5-4a3d-4c5f-8b9e-1234567890ab",
+        "name": "Microservices E-Commerce Platform",
+        "description": "Complete API collection for testing the microservices e-commerce platform",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "User Service",
+            "item": [
+                {
+                    "name": "Register User",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"email\": \"john.doe@example.com\",\n    \"password\": \"securePassword123\",\n    \"firstName\": \"John\",\n    \"lastName\": \"Doe\",\n    \"phone\": \"+1234567890\",\n    \"address\": \"123 Main Street, New York, NY\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{USER_SERVICE_URL}}/api/users/register",
+                            "host": [
+                                "{{USER_SERVICE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "users",
+                                "register"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Login User",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "if (pm.response.code === 200) {",
+                                    "    const jsonData = pm.response.json();",
+                                    "    if (jsonData.token) {",
+                                    "        pm.environment.set(\"USER_TOKEN\", jsonData.token);",
+                                    "        console.log(\"Token saved:\", jsonData.token);",
+                                    "    }",
+                                    "}"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"email\": \"john.doe@example.com\",\n    \"password\": \"securePassword123\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{USER_SERVICE_URL}}/api/users/login",
+                            "host": [
+                                "{{USER_SERVICE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "users",
+                                "login"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get User Profile",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{USER_TOKEN}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{USER_SERVICE_URL}}/api/users/profile",
+                            "host": [
+                                "{{USER_SERVICE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "users",
+                                "profile"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Update User Profile",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{USER_TOKEN}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"firstName\": \"John Updated\",\n    \"lastName\": \"Doe Updated\",\n    \"phone\": \"+1987654321\",\n    \"address\": \"456 Updated Street, Boston, MA\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{USER_SERVICE_URL}}/api/users/profile",
+                            "host": [
+                                "{{USER_SERVICE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "users",
+                                "profile"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Inventory Service",
+            "item": [
+                {
+                    "name": "Create Product",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "if (pm.response.code === 201) {",
+                                    "    const jsonData = pm.response.json();",
+                                    "    if (jsonData.data && jsonData.data.product && jsonData.data.product._id) {",
+                                    "        pm.environment.set(\"PRODUCT_ID\", jsonData.data.product._id);",
+                                    "        console.log(\"Product ID saved:\", jsonData.data.product._id);",
+                                    "    }",
+                                    "}"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"name\": \"MacBook Pro 16-inch\",\n    \"description\": \"Powerful laptop for professionals with M2 Pro chip, 16GB RAM, and 512GB SSD\",\n    \"price\": 2499.99,\n    \"category\": \"Electronics\",\n    \"stockQuantity\": 25,\n    \"specifications\": {\n        \"brand\": \"Apple\",\n        \"model\": \"MacBook Pro 16\",\n        \"color\": \"Space Gray\",\n        \"weight\": 2.15,\n        \"dimensions\": {\n            \"length\": 35.57,\n            \"width\": 24.81,\n            \"height\": 1.68\n        }\n    },\n    \"images\": [\n        \"https://example.com/macbook-pro-front.jpg\",\n        \"https://example.com/macbook-pro-side.jpg\"\n    ],\n    \"tags\": [\"laptop\", \"apple\", \"macbook\", \"professional\", \"m2\"]\n}"
+                        },
+                        "url": {
+                            "raw": "{{INVENTORY_SERVICE_URL}}/api/products",
+                            "host": [
+                                "{{INVENTORY_SERVICE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "products"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get All Products",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{INVENTORY_SERVICE_URL}}/api/products",
+                            "host": [
+                                "{{INVENTORY_SERVICE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "products"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get All Products with Pagination",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{INVENTORY_SERVICE_URL}}/api/products?page=1&limit=5",
+                            "host": [
+                                "{{INVENTORY_SERVICE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "products"
+                            ],
+                            "query": [
+                                {
+                                    "key": "page",
+                                    "value": "1"
+                                },
+                                {
+                                    "key": "limit",
+                                    "value": "5"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Search Products",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{INVENTORY_SERVICE_URL}}/api/products?search=laptop",
+                            "host": [
+                                "{{INVENTORY_SERVICE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "products"
+                            ],
+                            "query": [
+                                {
+                                    "key": "search",
+                                    "value": "laptop"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Filter by Category",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{INVENTORY_SERVICE_URL}}/api/products?category=Electronics",
+                            "host": [
+                                "{{INVENTORY_SERVICE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "products"
+                            ],
+                            "query": [
+                                {
+                                    "key": "category",
+                                    "value": "Electronics"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Filter by Price Range",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{INVENTORY_SERVICE_URL}}/api/products?minPrice=1000&maxPrice=3000",
+                            "host": [
+                                "{{INVENTORY_SERVICE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "products"
+                            ],
+                            "query": [
+                                {
+                                    "key": "minPrice",
+                                    "value": "1000"
+                                },
+                                {
+                                    "key": "maxPrice",
+                                    "value": "3000"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Product by ID",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{INVENTORY_SERVICE_URL}}/api/products/{{PRODUCT_ID}}",
+                            "host": [
+                                "{{INVENTORY_SERVICE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "products",
+                                "{{PRODUCT_ID}}"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Update Product",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"name\": \"MacBook Pro 16-inch (Updated)\",\n    \"description\": \"Updated: Powerful laptop for professionals with M2 Pro chip, 16GB RAM, and 512GB SSD\",\n    \"price\": 2399.99,\n    \"category\": \"Electronics\",\n    \"stockQuantity\": 30,\n    \"specifications\": {\n        \"brand\": \"Apple\",\n        \"model\": \"MacBook Pro 16\",\n        \"color\": \"Space Gray\",\n        \"weight\": 2.15\n    },\n    \"tags\": [\"laptop\", \"apple\", \"macbook\", \"professional\", \"m2\", \"updated\"]\n}"
+                        },
+                        "url": {
+                            "raw": "{{INVENTORY_SERVICE_URL}}/api/products/{{PRODUCT_ID}}",
+                            "host": [
+                                "{{INVENTORY_SERVICE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "products",
+                                "{{PRODUCT_ID}}"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Update Stock",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"stockQuantity\": 50\n}"
+                        },
+                        "url": {
+                            "raw": "{{INVENTORY_SERVICE_URL}}/api/products/{{PRODUCT_ID}}/stock",
+                            "host": [
+                                "{{INVENTORY_SERVICE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "products",
+                                "{{PRODUCT_ID}}",
+                                "stock"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Delete Product",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [],
+                        "url": {
+                            "raw": "{{INVENTORY_SERVICE_URL}}/api/products/{{PRODUCT_ID}}",
+                            "host": [
+                                "{{INVENTORY_SERVICE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "products",
+                                "{{PRODUCT_ID}}"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Health Checks",
+            "item": [
+                {
+                    "name": "User Service Health",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{USER_SERVICE_URL}}/actuator/health",
+                            "host": [
+                                "{{USER_SERVICE_URL}}"
+                            ],
+                            "path": [
+                                "actuator",
+                                "health"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Inventory Service Health",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{INVENTORY_SERVICE_URL}}/health",
+                            "host": [
+                                "{{INVENTORY_SERVICE_URL}}"
+                            ],
+                            "path": [
+                                "health"
+                            ]
+                        }
+                    }
+                }
+            ]
+        }
+    ],
+    "event": [
+        {
+            "listen": "prerequest",
+            "script": {
+                "type": "text/javascript",
+                "exec": [
+                    ""
+                ]
+            }
+        },
+        {
+            "listen": "test",
+            "script": {
+                "type": "text/javascript",
+                "exec": [
+                    ""
+                ]
+            }
+        }
+    ],
+    "variable": [
+        {
+            "key": "USER_SERVICE_URL",
+            "value": "http://localhost:8081",
+            "type": "string"
+        },
+        {
+            "key": "INVENTORY_SERVICE_URL",
+            "value": "http://localhost:8082",
+            "type": "string"
+        },
+        {
+            "key": "API_GATEWAY_URL",
+            "value": "http://localhost:8080",
+            "type": "string"
+        },
+        {
+            "key": "USER_TOKEN",
+            "value": "",
+            "type": "string"
+        },
+        {
+            "key": "PRODUCT_ID",
+            "value": "",
+            "type": "string"
+        }
+    ]
+}

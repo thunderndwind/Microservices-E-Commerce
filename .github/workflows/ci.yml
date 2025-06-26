@@ -1,0 +1,115 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres-user:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_DB: users_db
+          POSTGRES_USER: user_service
+          POSTGRES_PASSWORD: user_password
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5434:5432
+
+      postgres-payment:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_DB: payments_db
+          POSTGRES_USER: payment_service
+          POSTGRES_PASSWORD: payment_password
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5433:5432
+
+      mongodb:
+        image: mongo:7-jammy
+        env:
+          MONGO_INITDB_DATABASE: inventory_db
+          MONGO_INITDB_ROOT_USERNAME: admin
+          MONGO_INITDB_ROOT_PASSWORD: admin_password
+        options: >-
+          --health-cmd "echo 'db.runCommand(\"ping\").ok' | mongosh localhost:27017/test --quiet"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 27017:27017
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: |
+          api-gateway/package-lock.json
+          inventory-service/package-lock.json
+
+    - name: Set up Java
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+
+    - name: Install Node.js dependencies
+      run: |
+        cd api-gateway && npm ci
+        cd ../inventory-service && npm ci
+
+    - name: Build Java services
+      run: |
+        cd user-service && mvn clean compile -q
+        cd ../payment-service && mvn clean compile -q
+
+    - name: Run tests
+      run: |
+        chmod +x scripts/test.sh
+        ./scripts/test.sh quick
+
+  docker:
+    runs-on: ubuntu-latest
+    needs: test
+    
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Build Docker images
+      run: |
+        docker-compose build
+
+    - name: Start services
+      run: |
+        docker-compose up -d
+
+    - name: Wait for services
+      run: |
+        sleep 30
+
+    - name: Test services
+      run: |
+        chmod +x test-endpoints.sh
+        ./test-endpoints.sh
+
+    - name: Stop services
+      run: |
+        docker-compose down 

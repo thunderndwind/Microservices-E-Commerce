@@ -1,0 +1,142 @@
+services:
+  # Databases
+  postgres-user:
+    image: postgres:15-alpine
+    container_name: postgres-user
+    environment:
+      POSTGRES_DB: users_db
+      POSTGRES_USER: user_service
+      POSTGRES_PASSWORD: user_password
+    volumes:
+      - postgres_user_data:/var/lib/postgresql/data
+    networks:
+      - ecommerce-network
+    ports:
+      - "5434:5432"
+
+  postgres-payment:
+    image: postgres:15-alpine
+    container_name: postgres-payment
+    environment:
+      POSTGRES_DB: payments_db
+      POSTGRES_USER: payment_service
+      POSTGRES_PASSWORD: payment_password
+    volumes:
+      - postgres_payment_data:/var/lib/postgresql/data
+    networks:
+      - ecommerce-network
+    ports:
+      - "5433:5432"
+
+  mongodb:
+    image: mongo:7-jammy
+    container_name: mongodb-inventory
+    environment:
+      MONGO_INITDB_DATABASE: inventory_db
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: admin_password
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - ecommerce-network
+    ports:
+      - "27017:27017"
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh mongodb:27017/test --quiet
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+
+  # Microservices
+  user-service:
+    build:
+      context: .
+      dockerfile: user-service/Dockerfile
+      network: host
+    container_name: user-service
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-user:5432/users_db
+      - SPRING_DATASOURCE_USERNAME=user_service
+      - SPRING_DATASOURCE_PASSWORD=user_password
+      - GRPC_PORT=9091
+      - SERVER_PORT=8081
+    ports:
+      - "8081:8081"
+      - "9091:9091"
+    depends_on:
+      - postgres-user
+    networks:
+      - ecommerce-network
+
+  inventory-service:
+    build:
+      context: .
+      dockerfile: inventory-service/Dockerfile
+    container_name: inventory-service
+    environment:
+      - MONGODB_URI=mongodb://admin:admin_password@mongodb:27017/inventory_db?authSource=admin
+      - GRPC_PORT=9092
+      - SERVER_PORT=8082
+    ports:
+      - "8082:8082"
+      - "9092:9092"
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    networks:
+      - ecommerce-network
+
+  payment-service:
+    build:
+      context: .
+      dockerfile: payment-service/Dockerfile
+      network: host
+    container_name: payment-service
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-payment:5432/payments_db
+      - SPRING_DATASOURCE_USERNAME=payment_service
+      - SPRING_DATASOURCE_PASSWORD=payment_password
+      - GRPC_PORT=9093
+      - SERVER_PORT=8083
+    ports:
+      - "8083:8083"
+      - "9093:9093"
+    depends_on:
+      - postgres-payment
+    networks:
+      - ecommerce-network
+
+  api-gateway:
+    build:
+      context: .
+      dockerfile: api-gateway/Dockerfile
+    container_name: api-gateway
+    environment:
+      - USER_SERVICE_HOST=user-service
+      - USER_SERVICE_PORT=9091
+      - USER_SERVICE_REST_PORT=8081
+      - INVENTORY_SERVICE_HOST=inventory-service
+      - INVENTORY_SERVICE_PORT=9092
+      - INVENTORY_SERVICE_REST_PORT=8082
+      - PAYMENT_SERVICE_HOST=payment-service
+      - PAYMENT_SERVICE_PORT=9093
+      - PAYMENT_SERVICE_REST_PORT=8083
+      - SERVER_PORT=8080
+    ports:
+      - "8080:8080"
+    depends_on:
+      - user-service
+      - inventory-service
+      - payment-service
+    networks:
+      - ecommerce-network
+
+volumes:
+  postgres_user_data:
+  postgres_payment_data:
+  mongodb_data:
+
+networks:
+  ecommerce-network:
+    driver: bridge 

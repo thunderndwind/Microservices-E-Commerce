@@ -1,0 +1,76 @@
+syntax = "proto3";
+
+package inventory;
+
+option java_package = "com.ecommerce.proto";
+option java_outer_classname = "InventoryProto";
+
+// Inventory Service Definition
+service InventoryService {
+  rpc CheckStock(StockRequest) returns (StockResponse);
+  rpc ReserveStock(ReserveRequest) returns (ReserveResponse);
+  rpc ReleaseStock(ReleaseRequest) returns (ReleaseResponse);
+  rpc GetProduct(GetProductRequest) returns (ProductResponse);
+}
+
+// Request Messages
+message StockRequest {
+  string productId = 1;
+  int32 quantity = 2;
+}
+
+message ReserveRequest {
+  string productId = 1;
+  int32 quantity = 2;
+  string userId = 3;
+  string reservationId = 4;
+}
+
+message ReleaseRequest {
+  string reservationId = 1;
+}
+
+message GetProductRequest {
+  string productId = 1;
+}
+
+// Response Messages
+message StockResponse {
+  bool available = 1;
+  int32 currentStock = 2;
+  string message = 3;
+}
+
+message ReserveResponse {
+  bool success = 1;
+  string reservationId = 2;
+  string message = 3;
+  int32 reservedQuantity = 4;
+}
+
+message ReleaseResponse {
+  bool success = 1;
+  string message = 2;
+  int32 releasedQuantity = 3;
+}
+
+message ProductResponse {
+  bool success = 1;
+  string message = 2;
+  Product product = 3;
+}
+
+// Data Models
+message Product {
+  string id = 1;
+  string name = 2;
+  string description = 3;
+  double price = 4;
+  string category = 5;
+  int32 stockQuantity = 6;
+  string sku = 7;
+  repeated string images = 8;
+  repeated string tags = 9;
+  string createdAt = 10;
+  string updatedAt = 11;
+} 

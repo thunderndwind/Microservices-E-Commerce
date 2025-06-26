@@ -1,0 +1,75 @@
+syntax = "proto3";
+
+package payment;
+
+option java_package = "com.ecommerce.proto";
+option java_outer_classname = "PaymentProto";
+
+// Payment Service Definition
+service PaymentService {
+  rpc ProcessPayment(PaymentRequest) returns (PaymentResponse);
+  rpc ValidatePayment(ValidatePaymentRequest) returns (ValidationResponse);
+  rpc GetPaymentStatus(PaymentStatusRequest) returns (PaymentStatusResponse);
+}
+
+// Request Messages
+message PaymentRequest {
+  string userId = 1;
+  double amount = 2;
+  string currency = 3;
+  string paymentMethod = 4;
+  string orderId = 5;
+  PaymentDetails details = 6;
+}
+
+message ValidatePaymentRequest {
+  string paymentId = 1;
+}
+
+message PaymentStatusRequest {
+  string paymentId = 1;
+}
+
+// Response Messages
+message PaymentResponse {
+  bool success = 1;
+  string paymentId = 2;
+  string transactionId = 3;
+  string status = 4;
+  string message = 5;
+}
+
+message ValidationResponse {
+  bool valid = 1;
+  string status = 2;
+  string message = 3;
+}
+
+message PaymentStatusResponse {
+  bool success = 1;
+  Payment payment = 2;
+  string message = 3;
+}
+
+// Data Models
+message Payment {
+  string id = 1;
+  string userId = 2;
+  double amount = 3;
+  string currency = 4;
+  string status = 5; // PENDING, SUCCESS, FAILED, REFUNDED
+  string paymentMethod = 6;
+  string transactionId = 7;
+  string orderId = 8;
+  string createdAt = 9;
+  string updatedAt = 10;
+}
+
+message PaymentDetails {
+  string cardNumber = 1;
+  string cardHolder = 2;
+  string expiryMonth = 3;
+  string expiryYear = 4;
+  string cvv = 5;
+  string billingAddress = 6;
+} 
